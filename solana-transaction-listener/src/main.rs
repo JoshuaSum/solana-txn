@@ -2,7 +2,7 @@ use solana_gossip::crds::Cursor;
 use solana_gossip::gossip_service::make_gossip_node;
 use solana_streamer::socket::SocketAddrSpace;
 use solana_sdk::signature::Keypair;
-use std::net::SocketAddr;
+use std::net::{SocketAddr, ToSocketAddrs};
 use std::sync::atomic::AtomicBool;
 use std::thread::sleep;
 use std::time::Duration;
@@ -13,7 +13,10 @@ fn main() {
     let node_keypair = Keypair::new();
 
     // Create cluster info with a gossip entry point to an existing Solana cluster
-    let entrypoint: SocketAddr = "api.devnet.solana.com".parse().unwrap();
+    let entrypoint: SocketAddr = {
+        let mut addrs = "api.devnet.solana.com:8001".to_socket_addrs().unwrap();
+        addrs.next().unwrap()
+    };
     let socket_addr_space: SocketAddrSpace = SocketAddrSpace::new(false);
 
     // Start the gossip service
@@ -55,9 +58,9 @@ fn main() {
                 for account in instruction.accounts{
                     println!("        Account: {}", account);
                 }
-                println!("        Program input data:");
+                print!("        Program input data:");
                 for data in instruction.data{
-                    println!("        Data: {}", data);
+                    print!(" {}", data);
                 }
             }
             println!();
